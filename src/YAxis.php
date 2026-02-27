@@ -18,6 +18,7 @@ class YAxis implements Renderable
         public string $title = '',
         public ?float $minValue = null,
         public ?float $maxValue = null,
+        public ?string $position = null,
         public ?string $color = null,
         public array $annotations = [],
         public int $fontSize = 14,
@@ -42,8 +43,14 @@ class YAxis implements Renderable
 
         $titleMargin = 35;
         $labelWidth = strlen($this->formatter->call($this, $chart->maxValue($this->name))) * $this->characterSize + $this->labelMargin;
+        $isRight = $this->side() === 'right';
+        $axisWidth = $labelWidth + $titleMargin;
 
-        $chart->incrementLeftMargin($labelWidth + $titleMargin);
+        if ($isRight) {
+            $chart->incrementRightMargin($axisWidth);
+        } else {
+            $chart->incrementLeftMargin($axisWidth);
+        }
 
         $minValue = $chart->minValue($this->name);
         $maxValue = $chart->maxValue($this->name);
@@ -55,7 +62,7 @@ class YAxis implements Renderable
             $value = $minValue + ($valueStep * $i);
 
             $labelText = $this->formatter->call($this, $value);
-            $labelX = $chart->left() - 10;
+            $labelX = $isRight ? $chart->right() + 10 : $chart->left() - 10;
             $labelY = $chart->top() + $chart->availableHeight() - ($i * $lineSpacing) + 5;
 
             $svg .= new Text(
@@ -65,12 +72,12 @@ class YAxis implements Renderable
                 fontFamily: $this->fontFamily ?? $chart->fontFamily,
                 fontSize: $this->fontSize ?? $chart->fontSize,
                 fill: $this->color ?? $chart->color,
-                textAnchor: 'end'
+                textAnchor: $isRight ? 'start' : 'end'
             );
         }
 
         $titleY = ($chart->availableHeight()) / 2;
-        $titleX = $chart->left() - $labelWidth - 25;
+        $titleX = $isRight ? $chart->right() + $labelWidth + 25 : $chart->left() - $labelWidth - 25;
 
         $svg .= new Text(
             content: $this->title,
@@ -81,9 +88,14 @@ class YAxis implements Renderable
             fill: $this->color ?? $chart->color,
             textAnchor: 'middle',
             alignmentBaseline: 'middle',
-            transform: "rotate(270, $titleX, $titleY)"
+            transform: $isRight ? "rotate(90, $titleX, $titleY)" : "rotate(270, $titleX, $titleY)"
         );
 
         return $svg;
+    }
+
+    protected function side(): string
+    {
+        return $this->position === 'right' ? 'right' : 'left';
     }
 }

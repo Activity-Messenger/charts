@@ -23,6 +23,8 @@ class Chart
 
     protected float $initialLeftMargin;
 
+    protected float $initialRightMargin;
+
     /**
      * @param  Serie[]  $series
      * @param  Renderable[]  $annotations
@@ -47,8 +49,14 @@ class Chart
         protected ?string $viewBox = null,
     ) {
         $this->initialLeftMargin = $this->leftMargin;
+        $this->initialRightMargin = $this->rightMargin;
 
-        $this->yAxis = is_array($yAxis) ? $yAxis : [$yAxis];
+        $this->yAxis = is_array($yAxis) ? array_values($yAxis) : [$yAxis];
+        foreach ($this->yAxis as $index => $axis) {
+            if (is_null($axis->position)) {
+                $axis->position = $index === 0 ? 'left' : 'right';
+            }
+        }
         $this->yAxis = array_reduce($this->yAxis, function (array $carry, YAxis $yAxis) {
             $carry[$yAxis->name ?? 'default'] = $yAxis;
 
@@ -71,6 +79,7 @@ class Chart
     public function render(): string
     {
         $this->leftMargin = $this->initialLeftMargin;
+        $this->rightMargin = $this->initialRightMargin;
 
         return <<<SVG
             <svg xmlns="http://www.w3.org/2000/svg" width="$this->width" height="$this->height" viewBox="$this->viewBox">
@@ -269,6 +278,11 @@ class Chart
     public function incrementLeftMargin(float $value): void
     {
         $this->leftMargin += $value;
+    }
+
+    public function incrementRightMargin(float $value): void
+    {
+        $this->rightMargin += $value;
     }
 
     public function zeroLineY(?string $axis = null): float
