@@ -4,6 +4,7 @@ namespace Maantje\Charts;
 
 use Maantje\Charts\Annotations\RendersAfterSeries;
 use Maantje\Charts\Annotations\RendersBeforeSeries;
+use Maantje\Charts\Bar\Bars;
 use Maantje\Charts\Line\Lines;
 use Maantje\Charts\SVG\Rect;
 
@@ -162,13 +163,27 @@ class Chart
             return $this->maxValue[$yAxis];
         }
 
-        $filtered = array_filter($this->series, fn ($element) => ($element->yAxis ?? 'default') === $yAxis);
+        $candidates = [];
 
-        if (count($filtered) === 0) {
+        foreach ($this->series as $series) {
+            $value = null;
+
+            if ($series instanceof Bars) {
+                $value = $series->maxValueForAxis($yAxis);
+            } elseif (($series->yAxis ?? 'default') === $yAxis) {
+                $value = $series->maxValue();
+            }
+
+            if (! is_null($value)) {
+                $candidates[] = $value;
+            }
+        }
+
+        if (count($candidates) === 0) {
             return 0;
         }
 
-        return $this->maxValue[$yAxis] = max(0, ...array_map(fn ($element) => $element->maxValue(), $filtered));
+        return $this->maxValue[$yAxis] = max(0, ...$candidates);
     }
 
     public function minValue(?string $yAxis = null): float
@@ -183,13 +198,27 @@ class Chart
             return $this->minValue[$yAxis];
         }
 
-        $filtered = array_filter($this->series, fn ($element) => ($element->yAxis ?? 'default') === $yAxis);
+        $candidates = [];
 
-        if (count($filtered) === 0) {
+        foreach ($this->series as $series) {
+            $value = null;
+
+            if ($series instanceof Bars) {
+                $value = $series->minValueForAxis($yAxis);
+            } elseif (($series->yAxis ?? 'default') === $yAxis) {
+                $value = $series->minValue();
+            }
+
+            if (! is_null($value)) {
+                $candidates[] = $value;
+            }
+        }
+
+        if (count($candidates) === 0) {
             return 0;
         }
 
-        $dataMin = min(array_map(fn ($element) => $element->minValue(), $filtered));
+        $dataMin = min($candidates);
 
         return $this->minValue[$yAxis] = $dataMin < 0 ? $dataMin : min(0, $dataMin);
     }

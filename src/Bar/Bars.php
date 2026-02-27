@@ -35,6 +35,34 @@ class Bars extends Serie
         return min(array_map(fn (BarContract $data) => $data->minValue(), $this->bars));
     }
 
+    public function maxValueForAxis(string $axis): ?float
+    {
+        $values = array_values(array_filter(
+            array_map(fn (BarContract $bar) => $bar->maxValueForAxis($axis, $this->yAxis), $this->bars),
+            fn (?float $value) => $value !== null
+        ));
+
+        if (count($values) === 0) {
+            return null;
+        }
+
+        return max($values);
+    }
+
+    public function minValueForAxis(string $axis): ?float
+    {
+        $values = array_values(array_filter(
+            array_map(fn (BarContract $bar) => $bar->minValueForAxis($axis, $this->yAxis), $this->bars),
+            fn (?float $value) => $value !== null
+        ));
+
+        if (count($values) === 0) {
+            return null;
+        }
+
+        return min($values);
+    }
+
     public function render(Chart $chart): string
     {
         $numBars = count($this->bars);
@@ -50,7 +78,7 @@ class Bars extends Serie
         $svg = '';
 
         foreach ($this->bars as $bar) {
-            $svg .= $bar->render($chart, $x, $maxBarWidth);
+            $svg .= $bar->render($chart, $x, $maxBarWidth, $this->yAxis);
 
             $x += $maxBarWidth;
         }

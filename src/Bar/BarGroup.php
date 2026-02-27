@@ -51,7 +51,35 @@ class BarGroup implements BarContract
         return min(array_map(fn (BarContract $bar) => $bar->value(), $this->bars));
     }
 
-    public function render(Chart $chart, float $x, float $maxGroupWidth): string
+    public function maxValueForAxis(string $axis, ?string $fallbackAxis = null): ?float
+    {
+        $values = array_values(array_filter(
+            array_map(fn (BarContract $bar) => $bar->maxValueForAxis($axis, $fallbackAxis), $this->bars),
+            fn (?float $value) => $value !== null
+        ));
+
+        if (count($values) === 0) {
+            return null;
+        }
+
+        return max($values);
+    }
+
+    public function minValueForAxis(string $axis, ?string $fallbackAxis = null): ?float
+    {
+        $values = array_values(array_filter(
+            array_map(fn (BarContract $bar) => $bar->minValueForAxis($axis, $fallbackAxis), $this->bars),
+            fn (?float $value) => $value !== null
+        ));
+
+        if (count($values) === 0) {
+            return null;
+        }
+
+        return min($values);
+    }
+
+    public function render(Chart $chart, float $x, float $maxGroupWidth, ?string $fallbackAxis = null): string
     {
         $numBars = count($this->bars);
         $barWidth = 0;
@@ -72,8 +100,8 @@ class BarGroup implements BarContract
                 y2: $chart->bottom() + 10,
                 stroke: $this->labelColor ?? $chart->color,
             ),
-            ...array_map(function (BarContract $bar) use ($barWidth, &$x, $chart) {
-                $svg = $bar->render($chart, $x + $this->margin, $barWidth);
+            ...array_map(function (BarContract $bar) use ($barWidth, &$x, $chart, $fallbackAxis) {
+                $svg = $bar->render($chart, $x + $this->margin, $barWidth, $fallbackAxis);
                 $x += $this->margin + $barWidth;
 
                 return $svg;

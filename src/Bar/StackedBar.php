@@ -27,14 +27,15 @@ class StackedBar extends AbstractBar
         parent::__construct($name, $yAxis, $color, $width, $labelColor, $labelMarginY);
     }
 
-    public function render(Chart $chart, float $x, float $maxBarWidth): string
+    public function render(Chart $chart, float $x, float $maxBarWidth, ?string $fallbackAxis = null): string
     {
         $width = $this->calculateWidth($maxBarWidth);
         $x = $this->calculateX($x, $width, $maxBarWidth);
         $labelX = $this->calculateLabelX($x, $width);
+        $axis = $this->axis($fallbackAxis);
 
-        $initialY = $chart->yForAxis($this->value(), $this->yAxis);
-        $zeroY = $chart->zeroLineY($this->yAxis);
+        $initialY = $chart->yForAxis($this->value(), $axis);
+        $zeroY = $chart->zeroLineY($axis);
         $currentY = $zeroY;
 
         return new Fragment([

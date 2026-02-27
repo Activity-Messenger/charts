@@ -51,4 +51,27 @@ abstract class AbstractBar implements BarContract
             textAnchor: 'middle'
         );
     }
+
+    protected function axis(?string $fallbackAxis = null): string
+    {
+        return $this->yAxis ?? $fallbackAxis ?? 'default';
+    }
+
+    public function maxValueForAxis(string $axis, ?string $fallbackAxis = null): ?float
+    {
+        if ($this->axis($fallbackAxis) !== $axis) {
+            return null;
+        }
+
+        return $this->maxValue();
+    }
+
+    public function minValueForAxis(string $axis, ?string $fallbackAxis = null): ?float
+    {
+        if ($this->axis($fallbackAxis) !== $axis) {
+            return null;
+        }
+
+        return $this->minValue();
+    }
 }

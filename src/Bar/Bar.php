@@ -23,14 +23,15 @@ class Bar extends AbstractBar
         parent::__construct($name, $yAxis, $color, $width, $labelColor, $labelMarginY);
     }
 
-    public function render(Chart $chart, float $x, float $maxBarWidth): string
+    public function render(Chart $chart, float $x, float $maxBarWidth, ?string $fallbackAxis = null): string
     {
         $width = $this->calculateWidth($maxBarWidth);
         $x = $this->calculateX($x, $width, $maxBarWidth);
         $labelX = $this->calculateLabelX($x, $width);
+        $axis = $this->axis($fallbackAxis);
 
-        $valueY = $chart->yForAxis($this->value, $this->yAxis);
-        $baseline = $chart->minValue($this->yAxis) >= 0 ? $chart->bottom() : $chart->zeroLineY($this->yAxis);
+        $valueY = $chart->yForAxis($this->value, $axis);
+        $baseline = $chart->minValue($axis) >= 0 ? $chart->bottom() : $chart->zeroLineY($axis);
 
         $y = min($valueY, $baseline);
         $height = abs($valueY - $baseline);
