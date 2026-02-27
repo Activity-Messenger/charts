@@ -35,6 +35,7 @@ Below are some examples of the types of charts you can create using this library
 - [Advanced Bar Chart](#advanced-bar-chart)
 - [Mixed Chart](#mixed-chart)
 - [Dual Axis Bar Chart](#dual-axis-bar-chart)
+- [Horizontal Dual Axis Grouped Bar Chart](#horizontal-dual-axis-grouped-bar-chart)
 - [Negative Values Chart](#negative-values-chart)
 - [Pie Chart](#pie-chart)
 
@@ -85,6 +86,10 @@ Below are some examples of the types of charts you can create using this library
 ### Dual Axis Bar Chart
 ![Dual Axis Bar Chart](./examples/output/dual-axis-bar-chart.svg)  
 [View source](./examples/dual-axis-bar-chart.php)
+
+### Horizontal Dual Axis Grouped Bar Chart
+![Horizontal Dual Axis Grouped Bar Chart](./examples/output/horizontal-dual-axis-grouped-bar-chart.svg)  
+[View source](./examples/horizontal-dual-axis-grouped-bar-chart.php)
 
 ### Negative Values Chart
 ![Negative Values Chart](./examples/output/negative-values-chart.svg)  

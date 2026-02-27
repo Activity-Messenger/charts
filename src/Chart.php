@@ -5,6 +5,7 @@ namespace Maantje\Charts;
 use Maantje\Charts\Annotations\RendersAfterSeries;
 use Maantje\Charts\Annotations\RendersBeforeSeries;
 use Maantje\Charts\Bar\Bars;
+use Maantje\Charts\HorizontalBar\HorizontalBars;
 use Maantje\Charts\Line\Lines;
 use Maantje\Charts\SVG\Rect;
 
@@ -24,6 +25,10 @@ class Chart
     protected float $initialLeftMargin;
 
     protected float $initialRightMargin;
+
+    protected float $initialTopMargin;
+
+    protected float $initialBottomMargin;
 
     /**
      * @param  Serie[]  $series
@@ -50,11 +55,13 @@ class Chart
     ) {
         $this->initialLeftMargin = $this->leftMargin;
         $this->initialRightMargin = $this->rightMargin;
+        $this->initialTopMargin = $this->topMargin;
+        $this->initialBottomMargin = $this->bottomMargin;
 
         $this->yAxis = is_array($yAxis) ? array_values($yAxis) : [$yAxis];
         foreach ($this->yAxis as $index => $axis) {
             if (is_null($axis->position)) {
-                $axis->position = $index === 0 ? 'left' : 'right';
+                $axis->position = $this->defaultYAxisPosition($index);
             }
         }
         $this->yAxis = array_reduce($this->yAxis, function (array $carry, YAxis $yAxis) {
@@ -80,6 +87,8 @@ class Chart
     {
         $this->leftMargin = $this->initialLeftMargin;
         $this->rightMargin = $this->initialRightMargin;
+        $this->topMargin = $this->initialTopMargin;
+        $this->bottomMargin = $this->initialBottomMargin;
 
         return <<<SVG
             <svg xmlns="http://www.w3.org/2000/svg" width="$this->width" height="$this->height" viewBox="$this->viewBox">
@@ -131,6 +140,19 @@ class Chart
         return max($this->topMargin, $this->topMargin + $this->availableHeight() - (($y - $minValue) / $range) * $this->availableHeight());
     }
 
+    public function xForAxis(float $x, ?string $axis = null): float
+    {
+        $minValue = $this->minValue($axis);
+        $maxValue = $this->maxValue($axis);
+        $range = $maxValue - $minValue;
+
+        if ($range === 0.0) {
+            return $this->leftMargin;
+        }
+
+        return $this->leftMargin + (($x - $minValue) / $range) * $this->availableWidth();
+    }
+
     protected function renderSeries(): string
     {
         $svg = '';
@@ -177,7 +199,7 @@ class Chart
         foreach ($this->series as $series) {
             $value = null;
 
-            if ($series instanceof Bars) {
+            if ($series instanceof Bars || $series instanceof HorizontalBars) {
                 $value = $series->maxValueForAxis($yAxis);
             } elseif (($series->yAxis ?? 'default') === $yAxis) {
                 $value = $series->maxValue();
@@ -212,7 +234,7 @@ class Chart
         foreach ($this->series as $series) {
             $value = null;
 
-            if ($series instanceof Bars) {
+            if ($series instanceof Bars || $series instanceof HorizontalBars) {
                 $value = $series->minValueForAxis($yAxis);
             } elseif (($series->yAxis ?? 'default') === $yAxis) {
                 $value = $series->minValue();
@@ -285,9 +307,24 @@ class Chart
         $this->rightMargin += $value;
     }
 
+    public function incrementTopMargin(float $value): void
+    {
+        $this->topMargin += $value;
+    }
+
+    public function incrementBottomMargin(float $value): void
+    {
+        $this->bottomMargin += $value;
+    }
+
     public function zeroLineY(?string $axis = null): float
     {
         return $this->yForAxis(0, $axis);
+    }
+
+    public function zeroLineX(?string $axis = null): float
+    {
+        return $this->xForAxis(0, $axis);
     }
 
     protected function guessXAxisData(): void
@@ -305,5 +342,10 @@ class Chart
                 }
             }
         }
+    }
+
+    protected function defaultYAxisPosition(int $index): string
+    {
+        return $index === 0 ? 'left' : 'right';
     }
 }
