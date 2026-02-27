@@ -3,6 +3,7 @@
 require '../vendor/autoload.php';
 
 use Maantje\Charts\Bar\Bar;
+use Maantje\Charts\Bar\BarGroup;
 use Maantje\Charts\Bar\Bars;
 use Maantje\Charts\Chart;
 use Maantje\Charts\Formatter;
@@ -26,18 +27,28 @@ $chart = new Chart(
     ],
     series: [
         new Bars(
-            yAxis: 'revenue',
             bars: [
-                new Bar(name: 'Jan', value: 120000, color: '#1f77b4'),
-                new Bar(name: 'Feb', value: 95000, color: '#1f77b4'),
-                new Bar(name: 'Mar', value: 142000, color: '#1f77b4'),
-            ],
-        ),
-        new Bars(
-            bars: [
-                new Bar(name: 'Jan', value: 320, yAxis: 'orders', color: '#d62728', width: 40),
-                new Bar(name: 'Feb', value: 280, yAxis: 'orders', color: '#d62728', width: 40),
-                new Bar(name: 'Mar', value: 410, yAxis: 'orders', color: '#d62728', width: 40),
+                new BarGroup(
+                    name: 'Jan',
+                    bars: [
+                        new Bar(value: 120000, yAxis: 'revenue', color: '#1f77b4', width: 40),
+                        new Bar(value: 320, yAxis: 'orders', color: '#d62728', width: 40),
+                    ],
+                ),
+                new BarGroup(
+                    name: 'Feb',
+                    bars: [
+                        new Bar(value: 95000, yAxis: 'revenue', color: '#1f77b4', width: 40),
+                        new Bar(value: 280, yAxis: 'orders', color: '#d62728', width: 40),
+                    ],
+                ),
+                new BarGroup(
+                    name: 'Mar',
+                    bars: [
+                        new Bar(value: 142000, yAxis: 'revenue', color: '#1f77b4', width: 40),
+                        new Bar(value: 410, yAxis: 'orders', color: '#d62728', width: 40),
+                    ],
+                ),
             ],
         ),
     ],
